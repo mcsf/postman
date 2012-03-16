@@ -29,6 +29,7 @@ list **edges;		/* List of edges for each vertex */
 
 list *lst_new();
 void  lst_insert_ordered(list *l, int value);
+void  lst_remove(list *l, int value);
 int   lst_empty(list *l);
 int   lst_pop(list *l);
 void  lst_dump(list *);
@@ -82,6 +83,31 @@ void lst_insert_ordered(list *l, int value) {
 	pre->next = new;
 }
 
+void lst_remove(list *l, int value) {
+	node *pre, *cur;
+	pre = cur = l->head;
+
+	/* Empty list */
+	if (!cur) return;
+
+	/* Item is the head */
+	if (cur->value == value) {
+		l->head = cur->next;
+		free(cur);
+		return;
+	}
+
+	while ((cur = cur->next)) {
+		if (cur->value == value) {
+			pre->next = cur->next;
+			free(cur);
+			return;
+		}
+		pre = cur;
+	}
+
+}
+
 int lst_empty(list *l) {
 	return (l->head == NULL);
 }
@@ -107,7 +133,9 @@ void lst_dump(list *l) {
 
 void lst_test() {
 	list *l;
+	/*
 	int i;
+	*/
 
 	printf("Creating new list\n");
 	l = lst_new();
@@ -119,9 +147,20 @@ void lst_test() {
 	lst_insert_ordered(l, 6);
 	printf("List dump: ");
 	lst_dump(l);
+	/*
 	printf("Popping items:\n");
 	while ((i = lst_pop(l)) != -1)
 		printf("Popped: %d\n", i);
+	*/
+	printf("Removing items: 3, 6, 1, 4\n");
+	lst_remove(l, 3);
+	lst_dump(l);
+	lst_remove(l, 6);
+	lst_dump(l);
+	lst_remove(l, 1);
+	lst_dump(l);
+	lst_remove(l, 4);
+	lst_dump(l);
 }
 
 /* }}} */
