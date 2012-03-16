@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-/* Type and struct definitions for an integer linked list */
+#define DEBUG 1
+
+/* Type and struct definitions for an integer linked list {{{ */
 
 typedef struct _node {
 	int value;
@@ -12,20 +14,33 @@ typedef struct {
 	node *head;
 } list;
 
+/* }}} */
 
-/* Prototypes */
+/* Globals {{{ */
+
+int n;				/* Number of vertices */
+int m;				/* Number of edges */
+int init;			/* Initial vertex */
+list **edges;		/* List of edges for each vertex */
+
+/* }}} */
+
+/* Prototypes {{{ */
 
 list *lst_new();
-void lst_insert_ordered(list *, int);
-int lst_empty(list *l);
-int lst_pop(list *l);
-void lst_dump(list *);
-void lst_test();
+void  lst_insert_ordered(list *l, int value);
+int   lst_empty(list *l);
+int   lst_pop(list *l);
+void  lst_dump(list *);
+void  lst_test();
 
-int main();
+void  parse();
 
+int   main();
 
-/* Constructors and methods for linked list */
+/* }}} */
+
+/* Constructors and methods for linked list {{{ */
 
 list *lst_new() {
 	list *l = (list *) malloc(sizeof(list));
@@ -54,7 +69,7 @@ void lst_insert_ordered(list *l, int value) {
 	}
 
 	/* List traversal */
-	while (cur = cur->next) {
+	while ((cur = cur->next)) {
 		if (value < cur->value) {
 			pre->next = new;
 			new->next = cur;
@@ -91,8 +106,11 @@ void lst_dump(list *l) {
 }
 
 void lst_test() {
+	list *l;
+	int i;
+
 	printf("Creating new list\n");
-	list *l = lst_new();
+	l = lst_new();
 	printf("Inserting elements: 5, 3, 1, 7, 6\n");
 	lst_insert_ordered(l, 5);
 	lst_insert_ordered(l, 3);
@@ -102,7 +120,6 @@ void lst_test() {
 	printf("List dump: ");
 	lst_dump(l);
 	printf("Popping items:\n");
-	int i;
 	while ((i = lst_pop(l)) != -1)
 		printf("Popped: %d\n", i);
 }
@@ -126,3 +143,5 @@ int main() {
 
 	return 0;
 }
+
+/* vim: set ts=4 tw=78 fdm=marker fdl=0 fen :*/
