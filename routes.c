@@ -13,6 +13,18 @@ typedef struct {
 } list;
 
 
+/* Prototypes */
+
+list *lst_new();
+void lst_insert_ordered(list *, int);
+int lst_empty(list *l);
+int lst_pop(list *l);
+void lst_dump(list *);
+void lst_test();
+
+int main();
+
+
 /* Constructors and methods for linked list */
 
 list *lst_new() {
@@ -55,8 +67,19 @@ void lst_insert_ordered(list *l, int value) {
 	pre->next = new;
 }
 
-int lst_pop() {
-	return 0;
+int lst_empty(list *l) {
+	return (l->head == NULL);
+}
+
+int lst_pop(list *l) {
+	node *n = l->head;
+	int res = n->value;
+
+	if (!n) return -1;
+
+	l->head = n->next;
+	free(n);
+	return res;
 }
 
 void lst_dump(list *l) {
@@ -64,12 +87,13 @@ void lst_dump(list *l) {
 
 	for (n = l->head; n; n = n->next)
 		printf("%d ", n->value);
+	printf("\n");
 }
 
 void lst_test() {
 	printf("Creating new list\n");
 	list *l = lst_new();
-	printf("Inserting elements 5, 3, 1, 7, 6\n");
+	printf("Inserting elements: 5, 3, 1, 7, 6\n");
 	lst_insert_ordered(l, 5);
 	lst_insert_ordered(l, 3);
 	lst_insert_ordered(l, 1);
@@ -77,6 +101,10 @@ void lst_test() {
 	lst_insert_ordered(l, 6);
 	printf("List dump: ");
 	lst_dump(l);
+	printf("Popping items:\n");
+	int i;
+	while ((i = lst_pop(l)) != -1)
+		printf("Popped: %d\n", i);
 }
 
 
