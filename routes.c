@@ -34,7 +34,7 @@ int   lst_pop(list *l);
 void  lst_dump(list *);
 void  lst_test();
 
-void  parse();
+void  setup();
 
 int   main();
 
@@ -124,12 +124,45 @@ void lst_test() {
 		printf("Popped: %d\n", i);
 }
 
+/* }}} */
+
+/* Parsing and setup {{{ */
+
+void setup() {
+	int i, a, b;
+
+	/* Read n, m and init */
+	scanf("%d\n%d\n%d\n", &n, &m, &init);
+
+	/* Spawn edge lists */
+	edges = malloc(sizeof(list *) * n);
+	for (i = 0; i < n; i++)
+		edges[i] = lst_new();
+
+	/* Populate edge lists */
+	while (scanf("%d %d\n", &a, &b) != EOF) {
+#if DEBUG >= 2
+		printf("Read line: %d, %d\n", a, b);
+#endif
+		lst_insert_ordered(edges[a-1], b);
+		lst_insert_ordered(edges[b-1], a);
+	}
+
+#if DEBUG >= 1
+	printf("Edge lists:\n");
+	for (i = 0; i < n; i++)
+		lst_dump(edges[i]);
+#endif
+
+}
+
+/* }}} */
 
 /* Main */
 
 int main() {
 
-	lst_test();
+	setup();
 
 	/* Rough sequence:
 	 * 1. Parse input:
