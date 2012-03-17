@@ -18,10 +18,11 @@ typedef struct {
 
 /* Globals {{{ */
 
-int n;				/* Number of vertices */
-int m;				/* Number of edges */
-int init;			/* Initial vertex */
-list **edges;		/* List of edges for each vertex */
+int    n;        /* Number of vertices                                 */
+int    m;        /* Number of edges                                    */
+int    init;     /* Initial vertex                                     */
+list **edges;    /* Array of lists of edges (one list per vertex)      */
+list  *cycles;   /* List of lists of vertices (one per Eulerian cycle) */
 
 /* }}} */
 
@@ -39,6 +40,9 @@ void  lst_test();
 
 void  setup();
 int   check_solvable();
+
+int   initial_vertex(list *cycle);
+void  collect_cycles();
 
 int   main();
 
@@ -241,13 +245,60 @@ int check_solvable() {
 
 /* }}} */
 
+/* Path finding {{{ */
+
+int initial_vertex(list *cycle) {
+	node *n;
+
+	for (n = cycle->head; n; n = n->next) {
+		int v = n->value;
+		if (!lst_empty(edges[v-1]))
+			return v;
+	}
+
+	return 0;
+}
+
+void collect_cycles() {
+	int   cur;
+	list *cycle;
+
+	cycles = lst_new();
+
+	do {
+		printf("NEW CYCLE, init=%d\n", init);
+		cur = init;
+		cycle = lst_new();
+		lst_push(cycle, cur);
+
+		while (!lst_empty(edges[cur-1])) {
+			int next = lst_pop(edges[cur-1]);
+			lst_remove(edges[next-1], cur);
+			lst_push(cycle, next);
+			cur = next;
+		}
+
+		lst_dump(cycle);
+		/* TODO actually collect each cycle */
+
+	} while ((init = initial_vertex(cycle)));
+
+}
+
+/* }}} */
+
 /* Main */
 
 int main() {
 
 	setup();
 
-	printf("Solvable: %s\n", check_solvable() ? "yes" : "no");
+	if (!check_solvable()) {
+		printf("-1\n");
+		return 0;
+	}
+
+	collect_cycles();
 
 	/* Rough sequence:
 	 * 1. Parse input:
