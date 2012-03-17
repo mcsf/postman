@@ -38,7 +38,7 @@ void  lst_push(list *l, int value);
 int   lst_pop(list *l);
 int   lst_first(list *l);
 void  lst_reverse(list *l);
-void  lst_subst(list *l, int old, list *new);
+int   lst_subst(list *l, int old, list *new);
 void  lst_dump(list *);
 void  lst_test();
 
@@ -47,6 +47,9 @@ int   check_solvable();
 
 int   initial_vertex(list *cycle);
 void  collect_cycles();
+void  merge_cycles();
+
+void  output();
 
 int   main();
 
@@ -180,10 +183,10 @@ void lst_reverse(list *l) {
 
 }
 
-void lst_subst(list *l, int old, list *new) {
+int lst_subst(list *l, int old, list *new) {
 	node *pre, *cur, *new_head, *new_tail;
 
-	if (!l->head || !new->head) return;
+	if (!l->head || !new->head) return 0;
 
 	/* Fetch pointers for new_head and new_tail */
 	pre = cur = new_head = new->head;
@@ -196,17 +199,19 @@ void lst_subst(list *l, int old, list *new) {
 			pre->next = new_head;
 			new_tail->next = cur->next;
 			free(cur);
-			return;
+			return 1;
 		}
 		pre = cur;
 	}
+
+	return 0;
 }
 
 void lst_dump(list *l) {
 	node *n;
 
 	for (n = l->head; n; n = n->next)
-		printf("%d ", n->value);
+		printf("%d%s", n->value, n->next ? " " : "");
 	printf("\n");
 }
 
