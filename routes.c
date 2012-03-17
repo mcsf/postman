@@ -31,11 +31,13 @@ list *lst_new();
 void  lst_insert_ordered(list *l, int value);
 void  lst_remove(list *l, int value);
 int   lst_empty(list *l);
+void  lst_push(list *l, int value);
 int   lst_pop(list *l);
 void  lst_dump(list *);
 void  lst_test();
 
 void  setup();
+int   check_solvable();
 
 int   main();
 
@@ -112,6 +114,13 @@ int lst_empty(list *l) {
 	return (l->head == NULL);
 }
 
+void lst_push(list *l, int value) {
+	node *new  = malloc(sizeof(node));
+	new->value = value;
+	new->next  = l->head;
+	l->head    = new;
+}
+
 int lst_pop(list *l) {
 	node *n = l->head;
 	int res = n->value;
@@ -133,9 +142,7 @@ void lst_dump(list *l) {
 
 void lst_test() {
 	list *l;
-	/*
-	int i;
-	*/
+	/* int   i; */
 
 	printf("Creating new list\n");
 	l = lst_new();
@@ -147,11 +154,20 @@ void lst_test() {
 	lst_insert_ordered(l, 6);
 	printf("List dump: ");
 	lst_dump(l);
+
 	/*
 	printf("Popping items:\n");
 	while ((i = lst_pop(l)) != -1)
 		printf("Popped: %d\n", i);
 	*/
+
+	printf("Pushing items: 6, 66, 666, 42\n");
+	lst_push(l, 6);
+	lst_push(l, 66);
+	lst_push(l, 666);
+	lst_push(l, 42);
+	lst_dump(l);
+
 	printf("Removing items: 3, 6, 1, 4\n");
 	lst_remove(l, 3);
 	lst_dump(l);
@@ -195,13 +211,22 @@ void setup() {
 
 }
 
+int check_solvable() {
+	return 0;
+}
+
 /* }}} */
 
 /* Main */
 
 int main() {
 
+	lst_test(); return 0;
+
 	setup();
+
+	if (!check_solvable())
+		return 0;
 
 	/* Rough sequence:
 	 * 1. Parse input:
