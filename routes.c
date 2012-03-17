@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define DEBUG 1
+#define DEBUG 0
 
 /* Type and struct definitions for an integer linked list {{{ */
 
@@ -23,6 +23,7 @@ int    m;        /* Number of edges                                    */
 int    init;     /* Initial vertex                                     */
 list **edges;    /* Array of lists of edges (one list per vertex)      */
 list  *cycles;   /* List of lists of vertices (one per Eulerian cycle) */
+list  *c_0;      /* Main Eulerian sub-cycle (see `collect_cycles')     */
 
 /* }}} */
 
@@ -35,6 +36,9 @@ int   lst_empty(list *l);
 int   lst_size(list *l);
 void  lst_push(list *l, int value);
 int   lst_pop(list *l);
+int   lst_first(list *l);
+void  lst_reverse(list *l);
+void  lst_subst(list *l, int old, list *new);
 void  lst_dump(list *);
 void  lst_test();
 
@@ -147,6 +151,55 @@ int lst_pop(list *l) {
 	l->head = n->next;
 	free(n);
 	return res;
+}
+
+int lst_first(list *l) {
+	if (!l->head) return -1;
+	return l->head->value;
+}
+
+void lst_reverse(list *l) {
+	list *new  = lst_new();
+	node *n    = l->head;
+	node *next;
+
+	if (!n) return;
+
+	do {
+		next = n->next;
+		lst_push(new, lst_pop(l));
+	} while ((n = next));
+
+#if DEBUG >= 1
+	if (!lst_empty(l)) printf("L IS NOT EMPTY\n");
+#endif
+
+	l->head = new->head;
+	free(new);
+
+
+}
+
+void lst_subst(list *l, int old, list *new) {
+	node *pre, *cur, *new_head, *new_tail;
+
+	if (!l->head || !new->head) return;
+
+	/* Fetch pointers for new_head and new_tail */
+	pre = cur = new_head = new->head;
+	while ((cur = cur->next)) pre = cur;
+	new_tail = pre;
+
+	pre = cur = l->head;
+	while ((cur = cur->next)) {
+		if (cur->value == old) {
+			pre->next = new_head;
+			new_tail->next = cur->next;
+			free(cur);
+			return;
+		}
+		pre = cur;
+	}
 }
 
 void lst_dump(list *l) {
@@ -267,10 +320,19 @@ void collect_cycles() {
 	cycles = lst_new();
 
 	do {
+#if DEBUG >= 1
 		printf("NEW CYCLE, init=%d\n", init);
+#endif
 		cur = init;
 		cycle = lst_new();
 		lst_push(cycle, cur);
+
+		/*
+		 * Will only be called once. c_0 points to the first Eulerian
+		 * sub-cycle we find, which will be our 'main' cycle for the merger
+		 * later on.
+		 */
+		if (lst_empty(cycles)) c_0 = cycle;
 
 		while (!lst_empty(edges[cur-1])) {
 			int next = lst_pop(edges[cur-1]);
@@ -279,10 +341,48 @@ void collect_cycles() {
 			cur = next;
 		}
 
+#if DEBUG >= 1
 		lst_dump(cycle);
-		/* TODO actually collect each cycle */
+#endif
+		lst_push(cycles, (int) cycle);
 
 	} while ((init = initial_vertex(cycle)));
+}
+
+void merge_cycles() {
+
+#if DEBUG >= 1
+	printf("SIZE: %d\n", lst_size(cycles));
+#endif
+
+#if DEBUG >= 2
+	{
+		node *n;
+		for (n = cycles->head; n; n = n->next) {
+			int euh = n->value;
+			printf("--- %d\n", euh);
+			printf("+++ ");
+			lst_dump((list *) euh);
+		}
+	}
+#endif
+
+	while (lst_size(cycles) > 1) {
+		list *c_i = (list *) lst_pop(cycles);
+		int    end = lst_first(c_i);
+#if DEBUG >= 1
+		printf("<-- MERGING AT %d\n", end);
+		lst_dump(c_0);
+#endif
+		lst_subst(c_0, end, c_i);
+#if DEBUG >= 1
+		lst_dump(c_0);
+		printf("--> OKAY\n");
+#endif
+	}
+
+	lst_reverse(c_0);
+	lst_dump(c_0);
 
 }
 
@@ -300,6 +400,7 @@ int main() {
 	}
 
 	collect_cycles();
+	merge_cycles();
 
 	/* Rough sequence:
 	 * 1. Parse input:
