@@ -138,11 +138,12 @@ void lst_push(list *l, int value) {
 }
 
 int lst_pop(list *l) {
-	node *n = l->head;
-	int res = n->value;
+	int   res;
+	node *n   = l->head;
 
 	if (!n) return -1;
 
+	res = n->value;
 	l->head = n->next;
 	free(n);
 	return res;
