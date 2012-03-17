@@ -31,6 +31,7 @@ list *lst_new();
 void  lst_insert_ordered(list *l, int value);
 void  lst_remove(list *l, int value);
 int   lst_empty(list *l);
+int   lst_size(list *l);
 void  lst_push(list *l, int value);
 int   lst_pop(list *l);
 void  lst_dump(list *);
@@ -114,6 +115,17 @@ int lst_empty(list *l) {
 	return (l->head == NULL);
 }
 
+int lst_size(list *l) {
+	int   siz = 1;
+	node *n   = l->head;
+
+	if (!n) return 0;
+
+	while ((n = n->next)) siz++;
+
+	return siz;
+}
+
 void lst_push(list *l, int value) {
 	node *new  = malloc(sizeof(node));
 	new->value = value;
@@ -146,12 +158,14 @@ void lst_test() {
 
 	printf("Creating new list\n");
 	l = lst_new();
+	printf("Size: %d\n", lst_size(l));
 	printf("Inserting elements: 5, 3, 1, 7, 6\n");
 	lst_insert_ordered(l, 5);
 	lst_insert_ordered(l, 3);
 	lst_insert_ordered(l, 1);
 	lst_insert_ordered(l, 7);
 	lst_insert_ordered(l, 6);
+	printf("Size: %d\n", lst_size(l));
 	printf("List dump: ");
 	lst_dump(l);
 
@@ -166,6 +180,7 @@ void lst_test() {
 	lst_push(l, 66);
 	lst_push(l, 666);
 	lst_push(l, 42);
+	printf("Size: %d\n", lst_size(l));
 	lst_dump(l);
 
 	printf("Removing items: 3, 6, 1, 4\n");
@@ -212,7 +227,16 @@ void setup() {
 }
 
 int check_solvable() {
-	return 0;
+	int i;
+
+	for (i = 0; i < n; i++) {
+		int size = lst_size(edges[i]);
+		/* Graph must be connected and every vertex must be of even degree */
+		if (size == 0 || size % 2 == 1)
+			return 0;
+	}
+
+	return 1;
 }
 
 /* }}} */
@@ -221,12 +245,9 @@ int check_solvable() {
 
 int main() {
 
-	lst_test(); return 0;
-
 	setup();
 
-	if (!check_solvable())
-		return 0;
+	printf("Solvable: %s\n", check_solvable() ? "yes" : "no");
 
 	/* Rough sequence:
 	 * 1. Parse input:
