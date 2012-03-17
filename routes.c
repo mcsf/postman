@@ -215,6 +215,7 @@ void lst_dump(list *l) {
 	printf("\n");
 }
 
+#if 0
 void lst_test() {
 	list *l;
 	/* int   i; */
@@ -256,6 +257,7 @@ void lst_test() {
 	lst_remove(l, 4);
 	lst_dump(l);
 }
+#endif
 
 /* }}} */
 
@@ -356,39 +358,46 @@ void collect_cycles() {
 
 void merge_cycles() {
 
+	int i, j, n_cycles = lst_size(cycles);
+	list **cycles_arr = malloc(sizeof(list *) * n_cycles);
+
+	for (i = n_cycles - 1; i >= 0; i--)
+		cycles_arr[i] = (list *) lst_pop(cycles);
+
 #if DEBUG >= 1
-	printf("SIZE: %d\n", lst_size(cycles));
+	printf("SIZE: %d\n", n_cycles);
 #endif
 
 #if DEBUG >= 2
-	{
-		node *n;
-		for (n = cycles->head; n; n = n->next) {
-			int euh = n->value;
-			printf("--- %d\n", euh);
-			printf("+++ ");
-			lst_dump((list *) euh);
-		}
+	for (i = n_cycles - 1; i >= 0; i--) {
+		printf("--- %d\n", (int) cycles_arr[i]);
+		printf("+++ ");
+		lst_dump((list *) cycles_arr[i]);
 	}
 #endif
 
-	while (lst_size(cycles) > 1) {
-		list *c_i = (list *) lst_pop(cycles);
-		int    end = lst_first(c_i);
+	for (i = n_cycles - 1; i > 0; i--) {
+		list *c_i = cycles_arr[i];
+		int   end = lst_first(c_i);
 #if DEBUG >= 1
 		printf("<-- MERGING AT %d\n", end);
 		lst_dump(c_0);
 #endif
-		lst_subst(c_0, end, c_i);
+		for (j = 0; !lst_subst(cycles_arr[j], end, c_i); j++);
 #if DEBUG >= 1
-		lst_dump(c_0);
-		printf("--> OKAY\n");
+		lst_dump(cycles_arr[j]);
+		printf("--> MERGED INTO %d\n", j);
 #endif
 	}
+}
 
+/* }}} */
+
+/* Output {{{ */
+
+void output() {
 	lst_reverse(c_0);
 	lst_dump(c_0);
-
 }
 
 /* }}} */
@@ -406,16 +415,7 @@ int main() {
 
 	collect_cycles();
 	merge_cycles();
-
-	/* Rough sequence:
-	 * 1. Parse input:
-	 * - check for Eulerian graph
-	 * - set n, m, first vertex
-	 * - generate n edge lists
-	 * 2. Collect cycles
-	 * 3. Merge cycles
-	 * 4. Generate output
-	 */
+	output();
 
 	return 0;
 }
