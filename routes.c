@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define DEBUG 0
+#define DEBUG 1
+
+#if DEBUG >= 1
+#include <signal.h>
+#endif
 
 /* Type and struct definitions for an integer linked list {{{ */
 
@@ -104,7 +108,7 @@ void lst_remove(list *l, int value) {
 	/* Empty list */
 	if (!cur) return;
 
-	/* Item is the head */
+	/* Item is at the head */
 	if (cur->value == value) {
 		l->head = cur->next;
 		free(cur);
@@ -358,7 +362,7 @@ void collect_cycles() {
 
 void merge_cycles() {
 
-	int i, j, n_cycles = lst_size(cycles);
+	int i, n_cycles = lst_size(cycles);
 	list **cycles_arr = malloc(sizeof(list *) * n_cycles);
 
 	for (i = n_cycles - 1; i >= 0; i--)
@@ -377,18 +381,23 @@ void merge_cycles() {
 #endif
 
 	for (i = n_cycles - 1; i > 0; i--) {
+
 		list *c_i = cycles_arr[i];
 		int   end = lst_first(c_i);
 #if DEBUG >= 1
 		printf("<-- MERGING AT %d\n", end);
-		lst_dump(c_0);
-#endif
-		for (j = 0; !lst_subst(cycles_arr[j], end, c_i); j++);
-#if DEBUG >= 1
-		lst_dump(cycles_arr[j]);
-		printf("--> MERGED INTO %d\n", j);
+		lst_dump(cycles_arr[i-1]);
+		if (!lst_subst(cycles_arr[i-1], end, c_i)) {
+			printf("-+-+-+- OOPS\n");
+			raise(SIGUSR1);
+		}
+		lst_dump(cycles_arr[i-1]);
+		printf("--> MERGED INTO %d\n", i-1);
+#else
+		lst_subst(cycles_arr[i-1], end, c_i);
 #endif
 	}
+	free(cycles_arr);
 }
 
 /* }}} */
