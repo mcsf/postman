@@ -217,50 +217,6 @@ void lst_dump(list *l) {
 	printf("\n");
 }
 
-#if 0
-void lst_test() {
-	list *l;
-	/* int   i; */
-
-	printf("Creating new list\n");
-	l = lst_new();
-	printf("Size: %d\n", lst_size(l));
-	printf("Inserting elements: 5, 3, 1, 7, 6\n");
-	lst_insert_ordered(l, 5);
-	lst_insert_ordered(l, 3);
-	lst_insert_ordered(l, 1);
-	lst_insert_ordered(l, 7);
-	lst_insert_ordered(l, 6);
-	printf("Size: %d\n", lst_size(l));
-	printf("List dump: ");
-	lst_dump(l);
-
-	/*
-	printf("Popping items:\n");
-	while ((i = lst_pop(l)) != -1)
-		printf("Popped: %d\n", i);
-	*/
-
-	printf("Pushing items: 6, 66, 666, 42\n");
-	lst_push(l, 6);
-	lst_push(l, 66);
-	lst_push(l, 666);
-	lst_push(l, 42);
-	printf("Size: %d\n", lst_size(l));
-	lst_dump(l);
-
-	printf("Removing items: 3, 6, 1, 4\n");
-	lst_remove(l, 3);
-	lst_dump(l);
-	lst_remove(l, 6);
-	lst_dump(l);
-	lst_remove(l, 1);
-	lst_dump(l);
-	lst_remove(l, 4);
-	lst_dump(l);
-}
-#endif
-
 /* }}} */
 
 /* Parsing and setup {{{ */
