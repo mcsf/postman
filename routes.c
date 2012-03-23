@@ -183,8 +183,6 @@ void lst_reverse(list *l) {
 
 	l->head = new->head;
 	free(new);
-
-
 }
 
 int lst_subst(list *l, int old, list *new) {
@@ -289,8 +287,10 @@ void setup() {
 
 #if DEBUG >= 1
 	printf("Edge lists:\n");
-	for (i = 0; i < n; i++)
+	for (i = 0; i < n; i++) {
+		printf("%d\t: ", i+1);
 		lst_dump(edges[i]);
+	}
 #endif
 
 }
@@ -381,7 +381,6 @@ void merge_cycles() {
 #endif
 
 	for (i = n_cycles - 1; i > 0; i--) {
-
 		list *c_i = cycles_arr[i];
 		int   end = lst_first(c_i);
 #if DEBUG >= 1
